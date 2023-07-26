@@ -1,65 +1,66 @@
 #include "main.h"
-void print_cufffer(char cuffer[], int *cuff_ind);
+
+void print_buffer(char buffer[], int *buff_ind);
 
 /**
- * _printf - Starting point
- * @format: format
- * Return: printed chars
+ * _printf - Printf function
+ * @format: format.
+ * Return: Printed chars.
  */
 int _printf(const char *format, ...)
 {
-int c, pr = 0, pr_chars = 0;
-int f, width, automate, s, cuff_ind = 0;
-va_list list;
-char cuffer[BUFF_SIZE];
+	int i, printed = 0, printed_chars = 0;
+	int flags, width, precision, size, buff_ind = 0;
+	va_list list;
+	char buffer[BUFF_SIZE];
 
-if (format == NULL)
-return (-1);
-va_start(list, format);
+	if (format == NULL)
+		return (-1);
 
-for (c = 0; format && format[c] != '\0'; c++)
-{
-if (format[c] != '%')
-{
-cuffer[cuff_ind++] = format[c];
+	va_start(list, format);
 
-if (cuff_ind == BUFF_SIZE)
-print_cuffer(cuffer, &cuff_ind);
+	for (i = 0; format && format[i] != '\0'; i++)
+	{
+		if (format[i] != '%')
+		{
+			buffer[buff_ind++] = format[i];
+			if (buff_ind == BUFF_SIZE)
+				print_buffer(buffer, &buff_ind);
+			/* write(1, &format[i], 1);*/
+			printed_chars++;
+		}
+		else
+		{
+			print_buffer(buffer, &buff_ind);
+			flags = get_flags(format, &i);
+			width = get_width(format, &i, list);
+			precision = get_precision(format, &i, list);
+			size = get_size(format, &i);
+			++i;
+			printed = handle_print(format, &i, list, buffer,
+				flags, width, precision, size);
+			if (printed == -1)
+				return (-1);
+			printed_chars += printed;
+		}
+	}
 
-/* write(1, &format[c], 1);*/
-pr_chars++;
-}
-else
-{
-print_cuffer(cuffer, &cuff_ind);
-f = get_f(format, &c);
-width = get_width(format, &c, list);
-automate = get_automate(format, &c, list)
-s = get_s(format, &c);
-c++;
-printed = handle_print(format, &c, list,
-cuffer, f, width, automate, s);
+	print_buffer(buffer, &buff_ind);
 
-if (printed == -1)
-return (-1);
-printed_chars += printed;
-}
-}
-print_cuffer(cuffer, &cuff_ind);
-va_end(list);
-return (printed_chars);
+	va_end(list);
+
+	return (printed_chars);
 }
 
 /**
- * print_cuffer - Starting point
- * @cuffer: array
- * @cuff_ind: index of chars
- * Return:
+ * print_buffer - Prints the contents of the buffer if it exist
+ * @buffer: Array of chars
+ * @buff_ind: Index at which to add next char, represents the length.
  */
-void print_cuffer(char cuffer[], int *cuff_ind)
+void print_buffer(char buffer[], int *buff_ind)
 {
-if (*cuff_ind > 0)
-write(1, &cuffer[0], *cuff_ind);
+	if (*buff_ind > 0)
+		write(1, &buffer[0], *buff_ind);
 
-*cuff_ind = 0;
+	*buff_ind = 0;
 }
